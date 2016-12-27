@@ -102,6 +102,7 @@ public class FilterPanel extends JPanel {
 	private DefaultMutableTreeNode cityfurniture;
 	private DefaultMutableTreeNode genericCityObject;
 	private DefaultMutableTreeNode cityObjectGroup;
+	private DefaultMutableTreeNode underground;
 
 	public FilterPanel(Config config) {
 		this.config = config;
@@ -153,6 +154,7 @@ public class FilterPanel extends JPanel {
 		cityfurniture = new DefaultMutableTreeNode(FeatureClassMode.CITYFURNITURE);
 		genericCityObject = new DefaultMutableTreeNode(FeatureClassMode.GENERICCITYOBJECT);
 		cityObjectGroup = new DefaultMutableTreeNode(FeatureClassMode.CITYOBJECTGROUP);
+		underground = new DefaultMutableTreeNode(FeatureClassMode.UNDERGROUND);
 
 		cityObject.add(bridge);
 		cityObject.add(building);
@@ -165,6 +167,7 @@ public class FilterPanel extends JPanel {
 		cityObject.add(tunnel);
 		cityObject.add(vegetation);
 		cityObject.add(water);
+		cityObject.add(underground);
 
 		fcTree = new CheckboxTree(cityObject);
 		fcTree.setRowHeight((int)(new JCheckBox().getPreferredSize().getHeight()) - 4);		
@@ -359,6 +362,7 @@ public class FilterPanel extends JPanel {
 		model.setPathEnabled(new TreePath(new Object[]{cityObject, cityfurniture}), enable);
 		model.setPathEnabled(new TreePath(new Object[]{cityObject, genericCityObject}), enable);
 		model.setPathEnabled(new TreePath(new Object[]{cityObject, cityObjectGroup}), enable);
+		model.setPathEnabled(new TreePath(new Object[]{cityObject, underground}), enable);
 		fcTree.repaint();
 	}
 
@@ -392,6 +396,7 @@ public class FilterPanel extends JPanel {
 		model.setPathEnabled(new TreePath(new Object[]{cityObject, cityfurniture}), featureClassFilter.isSelected());
 		model.setPathEnabled(new TreePath(new Object[]{cityObject, genericCityObject}), featureClassFilter.isSelected());
 		model.setPathEnabled(new TreePath(new Object[]{cityObject, cityObjectGroup}), featureClassFilter.isSelected());
+		model.setPathEnabled(new TreePath(new Object[]{cityObject, underground}), featureClassFilter.isSelected());
 		fcTree.repaint();
 	}
 
@@ -488,6 +493,11 @@ public class FilterPanel extends JPanel {
 			fcTree.getCheckingModel().addCheckingPath(new TreePath(cityObjectGroup.getPath()));
 		else
 			fcTree.getCheckingModel().removeCheckingPath(new TreePath(cityObjectGroup.getPath()));
+		
+		if (!featureClass.isSetUnderground())
+			fcTree.getCheckingModel().addCheckingPath(new TreePath(underground.getPath()));
+		else
+			fcTree.getCheckingModel().removeCheckingPath(new TreePath(underground.getPath()));
 
 		setEnabledFilterSettings();
 	}
@@ -538,6 +548,7 @@ public class FilterPanel extends JPanel {
 		featureClass.setCityFurniture(!fcTree.getCheckingModel().isPathChecked(new TreePath(cityfurniture.getPath())));
 		featureClass.setGenericCityObject(!fcTree.getCheckingModel().isPathChecked(new TreePath(genericCityObject.getPath())));
 		featureClass.setCityObjectGroup(!fcTree.getCheckingModel().isPathChecked(new TreePath(cityObjectGroup.getPath())));
+		featureClass.setUnderground(!fcTree.getCheckingModel().isPathChecked(new TreePath(underground.getPath())));
 	}
 
 }

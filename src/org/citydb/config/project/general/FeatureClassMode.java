@@ -57,7 +57,9 @@ public enum FeatureClassMode {
 	@XmlEnumValue("Vegetation")
     VEGETATION("Vegetation"),
 	@XmlEnumValue("WaterBody")
-    WATERBODY("WaterBody");
+    WATERBODY("WaterBody"),
+	@XmlEnumValue("UnderGround")
+    UNDERGROUND("UnderGround");
 	
 	private final String value;
 

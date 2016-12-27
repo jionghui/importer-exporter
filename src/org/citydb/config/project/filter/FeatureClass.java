@@ -49,7 +49,8 @@ import javax.xml.bind.annotation.XmlType;
 		"reliefFeature",
 		"cityFurniture",
 		"genericCityObject",
-		"cityObjectGroup"
+		"cityObjectGroup",
+		"underground"
 })
 public class FeatureClass {
 	@XmlElement(defaultValue="true")
@@ -88,6 +89,8 @@ public class FeatureClass {
 	private Boolean genericCityObject = true;
 	@XmlElement(defaultValue="true")
 	private Boolean cityObjectGroup = true;
+	@XmlElement(defaultValue="true")
+	private Boolean underground = true;
 	@XmlAttribute(required=true)
 	private Boolean active = false;
 
@@ -356,6 +359,21 @@ public class FeatureClass {
 		return false;
 	}
 
+	public Boolean getUnderground() {
+		return underground;
+	}
+
+	public void setUnderground(Boolean underground) {
+		this.underground = underground;
+	}
+	
+	public boolean isSetUnderground() {
+		if (underground != null)
+			return underground.booleanValue();
+
+		return false;
+	}
+
 	public Boolean getCityObjectGroup() {
 		return cityObjectGroup;
 	}
@@ -363,7 +381,7 @@ public class FeatureClass {
 	public void setCityObjectGroup(Boolean cityObjectGroup) {
 		this.cityObjectGroup = cityObjectGroup;
 	}
-
+	
 	public boolean isSet() {
 		if (active != null)
 			return active.booleanValue();
