@@ -60,6 +60,7 @@ import org.citydb.modules.citygml.importer.database.content.DBSolitaryVegetatObj
 import org.citydb.modules.citygml.importer.database.content.DBTransportationComplex;
 import org.citydb.modules.citygml.importer.database.content.DBTunnel;
 import org.citydb.modules.citygml.importer.database.content.DBWaterBody;
+import org.citydb.modules.citygml.importer.database.content.DBUnderground;
 import org.citydb.modules.citygml.importer.util.ImportLogger;
 import org.citydb.modules.citygml.importer.util.ImportLogger.ImportLogEntry;
 import org.citydb.modules.common.event.CounterEvent;
@@ -94,6 +95,8 @@ import org.citygml4j.model.citygml.waterbody.WaterBody;
 import org.citygml4j.model.common.base.ModelType;
 import org.citygml4j.model.gml.basicTypes.Code;
 import org.citygml4j.model.gml.geometry.primitives.Envelope;
+
+import org.citygml4j.model.citygml.underground.Underground;
 
 public class DBImportWorker extends Worker<CityGML> implements EventHandler {
 	private final Logger LOG = Logger.getInstance();
@@ -387,6 +390,12 @@ public class DBImportWorker extends Worker<CityGML> implements EventHandler {
 					DBCityObjectGroup dbCityObjectGroup = (DBCityObjectGroup)dbImporterManager.getDBImporter(DBImporterEnum.CITYOBJECTGROUP);
 					if (dbCityObjectGroup != null)
 						id = dbCityObjectGroup.insert((CityObjectGroup)work);
+
+					break;
+				case UNDERGROUND:
+					DBUnderground dbUnderground = (DBUnderground)dbImporterManager.getDBImporter(DBImporterEnum.UNDERGROUND);
+					if (dbUnderground != null)
+						id = dbUnderground.insert((Underground)work);
 
 					break;
 				default:

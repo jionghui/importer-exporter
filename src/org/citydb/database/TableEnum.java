@@ -73,7 +73,9 @@ public enum TableEnum {
 	RELIEF_COMPONENT,
 	TIN_RELIEF,
 	GENERIC_CITYOBJECT,
-	CITYOBJECTGROUP;
+	CITYOBJECTGROUP,
+	UNDERGROUND,
+	UNDERGROUND_THEMATIC_SURFACE;
 
 	public static TableEnum fromInt(int i) {
 		for (TableEnum c : TableEnum.values()) {

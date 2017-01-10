@@ -278,6 +278,12 @@ public class DBImporterManager {
 			case OTHER_GEOMETRY:
 				dbImporter = new DBOtherGeometry(config, this);
 				break;
+			case UNDERGROUND:
+				dbImporter = new DBUnderground(batchConn, this);
+				break;
+			case UNDERGROUND_THEMATIC_SURFACE:
+				dbImporter = new DBUndergroundThematicSurface(batchConn, this);
+				break;
 			}
 
 			if (dbImporter != null)

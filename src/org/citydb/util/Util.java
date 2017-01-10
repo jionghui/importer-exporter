@@ -135,6 +135,14 @@ public class Util {
 		cityGMLClassMap.put(CityGMLClass.TUNNEL_DOOR, 100);
 		cityGMLClassMap.put(CityGMLClass.TUNNEL_FURNITURE, 101);
 		cityGMLClassMap.put(CityGMLClass.HOLLOW_SPACE, 102);
+		
+		cityGMLClassMap.put(CityGMLClass.UNDERGROUND_PART, 107);
+		cityGMLClassMap.put(CityGMLClass.UNDERGROUND, 108);
+		cityGMLClassMap.put(CityGMLClass.UNDERGROUND_ROOF_SURFACE, 110);
+		cityGMLClassMap.put(CityGMLClass.UNDERGROUND_WALL_SURFACE, 111);
+		cityGMLClassMap.put(CityGMLClass.UNDERGROUND_GROUND_SURFACE, 112);
+		cityGMLClassMap.put(CityGMLClass.UNDERGROUND_CLOSURE_SURFACE, 113);
+		
 	}
 
 	public static int cityObject2classId(CityGMLClass cityGMLClass) {

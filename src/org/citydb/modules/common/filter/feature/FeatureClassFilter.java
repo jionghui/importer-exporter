@@ -109,6 +109,8 @@ public class FeatureClassFilter implements Filter<CityGMLClass> {
 				return featureClassFilter.isSetGenericCityObject();
 			case CITY_OBJECT_GROUP:
 				return featureClassFilter.isSetCityObjectGroup();
+			case UNDERGROUND:
+				return featureClassFilter.isSetUnderground();
 			default:
 				return false;
 			}
