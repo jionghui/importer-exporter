@@ -184,6 +184,7 @@ public class KmlExportPanel extends JPanel implements EventHandler {
 	private DefaultMutableTreeNode waterBody;
 	private DefaultMutableTreeNode bridge;
 	private DefaultMutableTreeNode tunnel;
+	private DefaultMutableTreeNode underground;
 	
 	
 
@@ -366,6 +367,7 @@ public class KmlExportPanel extends JPanel implements EventHandler {
 		cityObjectGroup = new DefaultMutableTreeNode(FeatureClassMode.CITYOBJECTGROUP);
 		bridge = new DefaultMutableTreeNode(FeatureClassMode.BRIDGE);
 		tunnel = new DefaultMutableTreeNode(FeatureClassMode.TUNNEL);
+		underground = new DefaultMutableTreeNode(FeatureClassMode.UNDERGROUND);
 
 		cityObject.add(bridge);
 		cityObject.add(building);
@@ -378,6 +380,7 @@ public class KmlExportPanel extends JPanel implements EventHandler {
 		cityObject.add(tunnel);		
 		cityObject.add(vegetation);
 		cityObject.add(waterBody);
+		cityObject.add(underground);
 		
 		fcTree = new CheckboxTree(cityObject);
 		fcTree.setRowHeight((int)(new JCheckBox().getPreferredSize().getHeight()) - 4);		
@@ -590,6 +593,12 @@ public class KmlExportPanel extends JPanel implements EventHandler {
 		else {
 			fcTree.getCheckingModel().removeCheckingPath(new TreePath(tunnel.getPath()));
 		}
+		if (kmlExporter.getFilter().getComplexFilter().getFeatureClass().isSetUnderground()) {
+			fcTree.getCheckingModel().addCheckingPath(new TreePath(underground.getPath()));
+		}
+		else {
+			fcTree.getCheckingModel().removeCheckingPath(new TreePath(underground.getPath()));
+		}
 		// end of block
 
 		boolean isFirst = true;
@@ -761,6 +770,7 @@ public class KmlExportPanel extends JPanel implements EventHandler {
 		kmlExportFilter.getComplexFilter().getFeatureClass().setCityObjectGroup(fcTree.getCheckingModel().isPathChecked(new TreePath(cityObjectGroup.getPath())));
 		kmlExportFilter.getComplexFilter().getFeatureClass().setBridge(fcTree.getCheckingModel().isPathChecked(new TreePath(bridge.getPath())));
 		kmlExportFilter.getComplexFilter().getFeatureClass().setTunnel(fcTree.getCheckingModel().isPathChecked(new TreePath(tunnel.getPath())));
+		kmlExportFilter.getComplexFilter().getFeatureClass().setUnderground(fcTree.getCheckingModel().isPathChecked(new TreePath(underground.getPath())));
 		
 		config.getProject().setKmlExporter(kmlExporter);
 	}
@@ -1010,7 +1020,8 @@ public class KmlExportPanel extends JPanel implements EventHandler {
 					!filter.getComplexFilter().getFeatureClass().isSetVegetation() &&
 					!filter.getComplexFilter().getFeatureClass().isSetWaterBody() &&
 					!filter.getComplexFilter().getFeatureClass().isSetBridge() &&
-					!filter.getComplexFilter().getFeatureClass().isSetTunnel()) {
+					!filter.getComplexFilter().getFeatureClass().isSetTunnel() &&
+					!filter.getComplexFilter().getFeatureClass().isSetUnderground()) {
 				mainView.errorMessage(Language.I18N.getString("export.dialog.error.incorrectData"),
 						Language.I18N.getString("kmlExport.dialog.error.incorrectData.featureClass"));
 				return;
@@ -1131,6 +1142,7 @@ public class KmlExportPanel extends JPanel implements EventHandler {
 		model.setPathEnabled(new TreePath(new Object[]{cityObject, cityObjectGroup}), boundingBoxRadioButton.isSelected());
 		model.setPathEnabled(new TreePath(new Object[]{cityObject, bridge}), boundingBoxRadioButton.isSelected());
 		model.setPathEnabled(new TreePath(new Object[]{cityObject, tunnel}), boundingBoxRadioButton.isSelected());
+		model.setPathEnabled(new TreePath(new Object[]{cityObject, underground}), boundingBoxRadioButton.isSelected());
 		fcTree.repaint();
 
 		noTilingRadioButton.setEnabled(boundingBoxRadioButton.isSelected());
@@ -1182,6 +1194,7 @@ public class KmlExportPanel extends JPanel implements EventHandler {
 		fcTree.getCheckingModel().setPathEnabled(new TreePath(cityObjectGroup.getPath()), boundingBoxRadioButton.isSelected() && (lodComboBox.getSelectedIndex() > 0));
 		fcTree.getCheckingModel().setPathEnabled(new TreePath(bridge.getPath()), boundingBoxRadioButton.isSelected() && (lodComboBox.getSelectedIndex() > 0));
 		fcTree.getCheckingModel().setPathEnabled(new TreePath(tunnel.getPath()), boundingBoxRadioButton.isSelected() && (lodComboBox.getSelectedIndex() > 0));
+		fcTree.getCheckingModel().setPathEnabled(new TreePath(underground.getPath()), boundingBoxRadioButton.isSelected() && (lodComboBox.getSelectedIndex() > 0));
 		fcTree.repaint();
 
 	}

@@ -149,4 +149,8 @@ public class KmlSplittingResult {
 	public boolean isTunnel() {
 		return getCityObjectType().compareTo(CityGMLClass.TUNNEL) == 0;
 	}
+	
+	public boolean isUnderground() {
+		return getCityObjectType().compareTo(CityGMLClass.UNDERGROUND) == 0;
+	}
 }

@@ -132,6 +132,11 @@ public class KmlSplitter {
 			CURRENTLY_ALLOWED_CITY_OBJECT_TYPES.add(CityGMLClass.TUNNEL);
 		}
 		
+		if (allowAllTypes || filterConfig.getComplexFilter().getFeatureClass().isSetUnderground()
+				&& config.getProject().getKmlExporter().getLodToExportFrom() > 0) {
+			CURRENTLY_ALLOWED_CITY_OBJECT_TYPES.add(CityGMLClass.UNDERGROUND);
+		}
+		
 		databaseAdapter = dbConnectionPool.getActiveDatabaseAdapter();
 		connection = dbConnectionPool.getConnection();
 		dbSrs = databaseAdapter.getConnectionMetaData().getReferenceSystem();

@@ -2712,5 +2712,681 @@ public class Queries {
 		}
 		return query.replace("<LoD>", String.valueOf(lodToExportFrom));
 	}
+	
+	// ----------------------------------------------------------------------
+	// 	UNDERGROUND QUERIES
+	// ----------------------------------------------------------------------
 
+	public static final String UNDERGROUND_PARTS_FROM_UNDERGROUND =
+			"SELECT id FROM UNDERGROUND WHERE underground_root_id = ?";
+
+	private static final String UNDERGROUND_PART_FOOTPRINT_LOD4 =
+			"SELECT sg.geometry " +
+					"FROM SURFACE_GEOMETRY sg, UNDERGROUND_THEMATIC_SURFACE ts " +
+					"WHERE " +
+					"ts.underground_id = ? " +
+					"AND ts.objectclass_id = '35' " +
+					"AND sg.root_id = ts.lod4_multi_surface_id " +
+					"AND sg.geometry IS NOT NULL "; 
+
+
+	private static final String UNDERGROUND_PART_COLLADA_LOD4_ROOT_IDS =
+			"SELECT geom.gid FROM (" + 
+					// Underground
+					"SELECT ts.lod4_multi_surface_id as gid " + 					
+					"FROM UNDERGROUND_THEMATIC_SURFACE ts " + 
+					"WHERE " +  
+					"ts.underground_id = ? " +
+					"AND ts.lod4_multi_surface_id IS NOT NULL " +
+					"UNION " + 
+					"SELECT lod4_solid_id AS gid  FROM UNDERGROUND " +
+					"WHERE " +
+						"id = ? AND lod4_solid_id IS NOT NULL " +
+						"AND id NOT IN " +
+						"(SELECT underground_id FROM UNDERGROUND_THEMATIC_SURFACE " +
+							"WHERE underground_id = ? " +
+							"AND lod4_multi_surface_id IS NOT NULL " +
+						") " +
+					"UNION " +					 
+					"SELECT lod4_multi_surface_id AS gid  FROM UNDERGROUND " +
+					"WHERE " +
+						"id = ? AND lod4_multi_surface_id IS NOT NULL " +
+						"AND id NOT IN " +
+						"(SELECT underground_id FROM UNDERGROUND_THEMATIC_SURFACE " +
+							"WHERE underground_id = ? " +
+							"AND lod4_multi_surface_id IS NOT NULL " +
+						") " +
+					"UNION " + 
+					// Room
+					"SELECT ts.lod4_multi_surface_id as gid " + 
+					"FROM ROOM r, UNDERGROUND_THEMATIC_SURFACE ts " + 
+					"WHERE " +  
+					"r.underground_id = ? " +
+					"AND ts.room_id = r.id " +
+					"AND ts.lod4_multi_surface_id IS NOT NULL " +
+					"UNION " + 
+			        "SELECT r.lod4_solid_id as gid " + 
+			        "FROM ROOM r LEFT JOIN UNDERGROUND_THEMATIC_SURFACE ts ON ts.room_id = r.id " + 
+			        "WHERE " +  
+	  			    "r.underground_id = ? " +
+				    "AND r.lod4_solid_id IS NOT NULL " +
+	  			    "AND ts.lod4_multi_surface_id IS NULL " + 
+				    "UNION " + 
+			        "SELECT r.lod4_multi_surface_id as gid " + 
+			        "FROM ROOM r LEFT JOIN UNDERGROUND_THEMATIC_SURFACE ts ON ts.room_id = r.id " + 
+			        "WHERE " +  
+	  			    "r.underground_id = ? " +
+				    "AND r.lod4_multi_surface_id IS NOT NULL " +
+	  			    "AND ts.lod4_multi_surface_id IS NULL " +
+				    "UNION " + 
+	  			    // Underground Furniture
+					"SELECT bf.lod4_brep_id as gid " + 
+					"FROM ROOM r, UNDERGROUND_FURNITURE bf " + 
+					"WHERE " +  
+					"r.underground_id = ? " +
+					"AND bf.room_id = r.id " +
+					"AND bf.lod4_brep_id IS NOT NULL " +
+					"UNION " + 			
+					// Underground  Installation
+					"SELECT ts.lod4_multi_surface_id as gid " + 
+					"FROM UNDERGROUND_INSTALLATION bi, UNDERGROUND_THEMATIC_SURFACE ts " + 
+					"WHERE bi.underground_id = ? " +  
+					"AND ts.underground_installation_id = bi.id " +
+					"AND ts.lod4_multi_surface_id IS NOT NULL " +
+					"UNION " + 
+					"SELECT bi.lod4_brep_id as gid " + 
+					"FROM UNDERGROUND_INSTALLATION bi LEFT JOIN UNDERGROUND_THEMATIC_SURFACE ts ON ts.underground_installation_id = bi.id " +
+					"WHERE " +  
+					"bi.underground_id = ? " +
+					"AND bi.lod4_brep_id IS NOT NULL " +
+					"AND ts.lod4_multi_surface_id IS NULL " + 
+					"UNION " + 
+					// Opening
+					"SELECT o.lod4_multi_surface_id as gid " + 
+					"FROM UNDERGROUND_THEMATIC_SURFACE ts, OPENING_TO_THEM_SURFACE o2ts, OPENING o " + 
+					"WHERE " +  
+					"ts.underground_id = ? " +
+					"AND ts.lod4_multi_surface_id IS NOT NULL " +
+					"AND o2ts.UNDERGROUND_THEMATIC_SURFACE_id = ts.id " +
+					"AND o.id = o2ts.opening_id) geom";
+
+
+	private static final String UNDERGROUND_PART_GEOMETRY_LOD4 =
+			"SELECT sg.geometry, ts.objectclass_id, sg.id " +
+					"FROM SURFACE_GEOMETRY sg " +
+					"LEFT JOIN UNDERGROUND_THEMATIC_SURFACE ts ON ts.lod4_multi_surface_id = sg.root_id " +
+					"WHERE " +
+					"sg.geometry IS NOT NULL " +
+					"AND sg.root_id IN (" + UNDERGROUND_PART_COLLADA_LOD4_ROOT_IDS + ")";
+
+	private static final String UNDERGROUND_PART_FOOTPRINT_LOD3 =
+			"SELECT sg.geometry " +
+					"FROM SURFACE_GEOMETRY sg, UNDERGROUND_THEMATIC_SURFACE ts " +
+					"WHERE " +
+					"ts.underground_id = ? " +
+					"AND ts.objectclass_id = '35' " +
+					"AND sg.root_id = ts.lod3_multi_surface_id " +
+					"AND sg.geometry IS NOT NULL "; 
+
+	private static final String UNDERGROUND_PART_COLLADA_LOD3_ROOT_IDS =
+			"SELECT geom.gid FROM (" + 
+					// Underground
+					"SELECT ts.lod3_multi_surface_id as gid " + 
+					"FROM UNDERGROUND_THEMATIC_SURFACE ts " + 
+					"WHERE " +  
+					"ts.underground_id = ? " +
+					"AND ts.lod3_multi_surface_id IS NOT NULL " +
+					"UNION " + 
+					"SELECT lod3_solid_id AS gid FROM UNDERGROUND " +
+					"WHERE " +
+						"id = ? AND lod3_solid_id IS NOT NULL " +
+						"AND id NOT IN " +
+						"(SELECT underground_id FROM UNDERGROUND_THEMATIC_SURFACE " +
+							"WHERE underground_id = ? " +
+							"AND lod3_multi_surface_id IS NOT NULL " +
+						") " +
+					"UNION " +					 
+					"SELECT lod3_multi_surface_id AS gid  FROM UNDERGROUND " +
+					"WHERE " +
+						"id = ? AND lod3_multi_surface_id IS NOT NULL " +
+						"AND id NOT IN " +
+						"(SELECT underground_id FROM UNDERGROUND_THEMATIC_SURFACE " +
+							"WHERE underground_id = ? " +
+							"AND lod3_multi_surface_id IS NOT NULL " +
+						") " +
+					"UNION " + 
+					// Underground Installation
+					"SELECT ts.lod3_multi_surface_id as gid " + 
+					"FROM UNDERGROUND_INSTALLATION bi, UNDERGROUND_THEMATIC_SURFACE ts " + 
+					"WHERE bi.underground_id = ? " +  
+					"AND ts.underground_installation_id = bi.id " +
+					"AND ts.lod3_multi_surface_id IS NOT NULL " +
+					"UNION " + 
+					"SELECT bi.lod3_brep_id as gid " + 
+					"FROM UNDERGROUND_INSTALLATION bi LEFT JOIN UNDERGROUND_THEMATIC_SURFACE ts ON ts.underground_installation_id = bi.id " +
+					"WHERE " +  
+					"bi.underground_id = ? " +
+					"AND bi.lod3_brep_id IS NOT NULL " +
+					"AND ts.lod3_multi_surface_id IS NULL " + 
+					"UNION " + 
+					// Opening
+					"SELECT o.lod3_multi_surface_id as gid " + 
+					"FROM UNDERGROUND_THEMATIC_SURFACE ts, OPENING_TO_THEM_SURFACE o2ts, OPENING o " + 
+					"WHERE " +  
+					"ts.underground_id = ? " +
+					"AND ts.lod3_multi_surface_id IS NOT NULL " +
+					"AND o2ts.UNDERGROUND_THEMATIC_SURFACE_id = ts.id " +
+					"AND o.id = o2ts.opening_id) geom";
+
+	
+	private static final String UNDERGROUND_PART_GEOMETRY_LOD3 =
+			"SELECT sg.geometry, ts.objectclass_id, sg.id " +
+					"FROM SURFACE_GEOMETRY sg " +
+					"LEFT JOIN UNDERGROUND_THEMATIC_SURFACE ts ON ts.lod3_multi_surface_id = sg.root_id " +
+					"WHERE " +
+					"sg.geometry IS NOT NULL " +
+					"AND sg.root_id IN (" + UNDERGROUND_PART_COLLADA_LOD3_ROOT_IDS	+ ")";
+	
+
+	private static final String UNDERGROUND_PART_FOOTPRINT_LOD2 =
+			"SELECT sg.geometry " +
+					"FROM SURFACE_GEOMETRY sg, UNDERGROUND_THEMATIC_SURFACE ts " +
+					"WHERE " +
+					"ts.underground_id = ? " +
+					"AND ts.objectclass_id = '35' " +
+					"AND sg.root_id = ts.lod2_multi_surface_id " +
+					"AND sg.geometry IS NOT NULL " +
+					"ORDER BY ts.underground_id";
+	
+	
+	private static final String UNDERGROUND_PART_COLLADA_LOD2_ROOT_IDS =
+			"SELECT geom.gid FROM ( " + 
+					// Underground
+					"SELECT ts.lod2_multi_surface_id as gid " + 
+					"FROM UNDERGROUND_THEMATIC_SURFACE ts " + 
+					"WHERE " +  
+					"ts.underground_id = ? " +
+					"AND ts.lod2_multi_surface_id IS NOT NULL " +
+					"UNION " + 
+					"SELECT lod2_solid_id AS gid FROM UNDERGROUND " +
+					"WHERE " +
+						"id = ? AND lod2_solid_id IS NOT NULL " +
+						"AND id NOT IN " +
+						"(SELECT underground_id FROM UNDERGROUND_THEMATIC_SURFACE " +
+							"WHERE underground_id = ? " +
+							"AND lod2_multi_surface_id IS NOT NULL " +
+						") " +
+					"UNION " +					 
+					"SELECT lod2_multi_surface_id AS gid FROM UNDERGROUND " +
+					"WHERE " +
+						"id = ? AND lod2_multi_surface_id IS NOT NULL " +
+						"AND id NOT IN " +
+						"(SELECT underground_id FROM UNDERGROUND_THEMATIC_SURFACE " +
+							"WHERE underground_id = ? " +
+							"AND lod2_multi_surface_id IS NOT NULL " +
+						") ) geom";// 
+//					+				
+//					"UNION " +			
+//					// Underground Installation	
+//					"SELECT ts.lod2_multi_surface_id as gid " + 
+//					"FROM UNDERGROUND_INSTALLATION bi, UNDERGROUND_THEMATIC_SURFACE ts " + 
+//					"WHERE bi.underground_id = ? " +  
+//					"AND ts.underground_installation_id = bi.id " +
+//					"AND ts.lod2_multi_surface_id IS NOT NULL " +
+//					"UNION " + 
+//					"SELECT bi.lod2_brep_id as gid " + 
+//					"FROM UNDERGROUND_INSTALLATION bi LEFT JOIN UNDERGROUND_THEMATIC_SURFACE ts ON ts.underground_installation_id = bi.id " +
+//					"WHERE " +  
+//					"bi.underground_id = ? " +
+//					"AND bi.lod2_brep_id IS NOT NULL " +
+//					"AND ts.lod2_multi_surface_id IS NULL) geom";
+	
+	
+	private static final String UNDERGROUND_PART_GEOMETRY_LOD2 =
+			"SELECT sg.geometry, ts.objectclass_id, sg.id " +
+					"FROM SURFACE_GEOMETRY sg " +
+					"LEFT JOIN UNDERGROUND_THEMATIC_SURFACE ts ON ts.lod2_multi_surface_id = sg.root_id " +
+					"WHERE " +
+					"sg.geometry IS NOT NULL " +
+					"AND sg.root_id IN (" + UNDERGROUND_PART_COLLADA_LOD2_ROOT_IDS	+ ")";
+
+	
+	private static final String UNDERGROUND_PART_FOOTPRINT_LOD1(DatabaseType type) {		
+		switch (type) {
+		case ORACLE:
+			return UNDERGROUND_PART_GET_AGGREGATE_GEOMETRIES_FOR_LOD1(type).replace("<TOLERANCE>", "0.001")
+					.replace("<2D_SRID>", "(SELECT SRID FROM DATABASE_SRS)")
+					.replace("<LoD>", "1")
+					.replace("<GROUP_BY_1>", "256")
+					.replace("<GROUP_BY_2>", "64")
+					.replace("<GROUP_BY_3>", "16");
+		case POSTGIS:		
+			return UNDERGROUND_PART_GET_AGGREGATE_GEOMETRIES_FOR_LOD1(type).replace("<TOLERANCE>", "0.001")
+					.replace("<LoD>", "1");			
+		default:
+			return null;
+		}
+	}	
+	
+	private static final String UNDERGROUND_PART_COLLADA_LOD1_ROOT_IDS =
+			"SELECT geom.gid FROM (SELECT b.lod1_multi_surface_id as gid " +			
+					"FROM UNDERGROUND b " +
+					"WHERE " +
+					"b.id = ? " +
+					"AND b.lod1_multi_surface_id IS NOT NULL " + 
+					"UNION " + 
+					"SELECT b.lod1_solid_id as gid " +			
+					"FROM UNDERGROUND b " +
+					"WHERE " +
+					"b.id = ? " +
+					"AND b.lod1_solid_id IS NOT NULL) geom"; 
+	
+	
+	private static final String UNDERGROUND_PART_GEOMETRY_LOD1 =
+			"SELECT sg.geometry, NULL as objectclass_id, sg.id " +
+					"FROM SURFACE_GEOMETRY sg " +
+					"WHERE " +
+					"sg.geometry IS NOT NULL " +
+					"AND sg.root_id IN (" + UNDERGROUND_PART_COLLADA_LOD1_ROOT_IDS	+ ")";
+	
+	
+
+
+
+	private static final String UNDERGROUND_PART_GEOMETRY_HIGHLIGHTING_LOD1 =
+			"SELECT sg.geometry, sg.id " +
+					"FROM SURFACE_GEOMETRY sg, UNDERGROUND b " +
+					"WHERE " +
+					"b.id = ? " +
+					"AND (sg.root_id = b.lod1_solid_id " +
+						"OR sg.root_id = b.lod1_multi_surface_id) " +
+					"AND sg.geometry IS NOT NULL ";
+
+	private static final String UNDERGROUND_PART_GEOMETRY_HIGHLIGHTING_LOD2 =
+			"SELECT sg.geometry, sg.id " +
+					"FROM SURFACE_GEOMETRY sg " +
+					"WHERE " +
+					"sg.geometry IS NOT NULL " +
+					"AND sg.root_id IN (" + UNDERGROUND_PART_COLLADA_LOD2_ROOT_IDS	+ ")";
+
+	private static final String UNDERGROUND_PART_GEOMETRY_HIGHLIGHTING_LOD3 =
+			"SELECT sg.geometry, sg.id " +
+					"FROM SURFACE_GEOMETRY sg " +
+					"WHERE " +
+					"sg.geometry IS NOT NULL " +
+					"AND sg.root_id IN (" + UNDERGROUND_PART_COLLADA_LOD3_ROOT_IDS + ")";
+
+	private static final String UNDERGROUND_PART_GEOMETRY_HIGHLIGHTING_LOD4 =
+			"SELECT sg.geometry, sg.id " +
+					"FROM SURFACE_GEOMETRY sg " +
+					"WHERE " +
+					"sg.geometry IS NOT NULL " +
+					"AND sg.root_id IN (" +
+					"SELECT geom.gid FROM (SELECT ts.lod4_multi_surface_id as gid " + 
+					"FROM UNDERGROUND_THEMATIC_SURFACE ts " + 
+					"WHERE " +  
+					"ts.underground_id = ? " +
+					"AND ts.lod4_multi_surface_id IS NOT NULL " +
+					"UNION " + 
+					"SELECT o.lod4_multi_surface_id as gid " + 
+					"FROM UNDERGROUND_THEMATIC_SURFACE ts, OPENING_TO_THEM_SURFACE o2ts, OPENING o " + 
+					"WHERE " +  
+					"ts.underground_id = ? " +
+					"AND ts.lod4_multi_surface_id IS NOT NULL " +
+					"AND o2ts.UNDERGROUND_THEMATIC_SURFACE_id = ts.id " +
+					"AND o.id = o2ts.opening_id " +
+					"UNION " + 
+					"SELECT b.lod4_solid_id as gid " + 
+					"FROM UNDERGROUND b LEFT JOIN UNDERGROUND_THEMATIC_SURFACE ts ON ts.underground_id = b.id " + 
+					"WHERE " +  
+					"b.id = ? " +
+					"AND b.lod4_solid_id IS NOT NULL " +
+					"AND ts.lod4_multi_surface_id IS NULL " +
+					"UNION " +						
+					"SELECT b.lod4_multi_surface_id as gid " + 
+					"FROM UNDERGROUND b LEFT JOIN UNDERGROUND_THEMATIC_SURFACE ts ON ts.underground_id = b.id " + 
+					"WHERE " +  
+					"b.id = ? " +
+					"AND b.lod4_multi_surface_id IS NOT NULL " +
+					"AND ts.lod4_multi_surface_id IS NULL) geom)";
+
+
+	private static final String UNDERGROUND_PART_GET_AGGREGATE_GEOMETRIES_FOR_LOD2_OR_HIGHER(DatabaseType type) {
+		switch (type) {
+		case ORACLE:
+			return "SELECT sdo_aggr_union(mdsys.sdoaggrtype(aggr_geom, <TOLERANCE>)) aggr_geom " +
+			"FROM (SELECT sdo_aggr_union(mdsys.sdoaggrtype(aggr_geom, <TOLERANCE>)) aggr_geom " +
+			"FROM (SELECT sdo_aggr_union(mdsys.sdoaggrtype(aggr_geom, <TOLERANCE>)) aggr_geom " +
+			"FROM (SELECT sdo_aggr_union(mdsys.sdoaggrtype(simple_geom, <TOLERANCE>)) aggr_geom " +
+			"FROM (" +
+						"SELECT * FROM (" +
+						"SELECT * FROM (" +
+				    	"SELECT citydb_util.to_2d(sg.geometry, <2D_SRID>) AS simple_geom " +
+				    	"FROM SURFACE_GEOMETRY sg " +
+				    	"WHERE " +
+				    	"sg.root_id IN( " +
+				    	"SELECT geom.gid FROM (SELECT b.lod<LoD>_multi_surface_id as gid " +
+				    	"FROM UNDERGROUND b " +
+				    	"WHERE "+
+				    	"b.id = ? " +
+				    	"AND b.lod<LoD>_multi_surface_id IS NOT NULL " +
+				    	"UNION " +
+				    	"SELECT b.lod<LoD>_solid_id as gid " +
+				    	"FROM UNDERGROUND b " +
+				    	"WHERE "+
+				    	"b.id = ? " +
+				    	"AND b.lod<LoD>_solid_id IS NOT NULL " +				    	
+				    	"UNION " +
+				    	"SELECT ts.lod<LoD>_multi_surface_id as gid " +
+				    	"FROM UNDERGROUND_THEMATIC_SURFACE ts " +
+				    	"WHERE "+
+				    	"ts.underground_id = ? " +
+				    	"AND ts.lod<LoD>_multi_surface_id IS NOT NULL) geom "+
+				    	") " +
+				    	"AND sg.geometry IS NOT NULL" +
+
+						") WHERE sdo_geom.validate_geometry(simple_geom, <TOLERANCE>) = 'TRUE'" +
+						") WHERE sdo_geom.sdo_area(simple_geom, <TOLERANCE>) > <TOLERANCE>" +
+
+						") " +
+						"GROUP BY mod(rownum, <GROUP_BY_1>) " +
+						") " +
+						"GROUP BY mod (rownum, <GROUP_BY_2>) " +
+						") " +
+						"GROUP BY mod (rownum, <GROUP_BY_3>) " +
+						")";
+		case POSTGIS:
+			return "SELECT ST_Union(get_valid_area.simple_geom) " +
+			"FROM (" +
+			"SELECT * FROM (" +
+			"SELECT * FROM (" +
+				        "SELECT ST_Force2D(sg.geometry) AS simple_geom " +
+				        "FROM SURFACE_GEOMETRY sg " +
+				        "WHERE " +
+				        "sg.root_id IN( " +
+				        "SELECT b.lod<LoD>_multi_surface_id " +
+				        "FROM UNDERGROUND b " +
+				        "WHERE b.id = ? " +
+				        "AND b.lod<LoD>_multi_surface_id IS NOT NULL " +
+				        "UNION " +
+				        "SELECT b.lod<LoD>_solid_id " +
+				        "FROM UNDERGROUND b " +
+				        "WHERE b.id = ? " +
+				        "AND b.lod<LoD>_solid_id IS NOT NULL " +
+				        "UNION " +
+				        "SELECT ts.lod<LoD>_multi_surface_id " +
+				        "FROM UNDERGROUND_THEMATIC_SURFACE ts " +
+				        "WHERE ts.underground_id = ? " +
+				        "AND ts.lod<LoD>_multi_surface_id IS NOT NULL "+
+				        ") " +
+				        "AND sg.geometry IS NOT NULL) AS get_geoms " +
+				    	"WHERE ST_IsValid(get_geoms.simple_geom) = 'TRUE') AS get_valid_geoms " +
+				    	// ST_Area for WGS84 only works correctly if the geometry is a geography data type
+				    	"WHERE ST_Area(ST_Transform(get_valid_geoms.simple_geom,4326)::geography, true) > <TOLERANCE>) AS get_valid_area";
+		default:
+			return null;
+		}
+	}
+
+	private static final String UNDERGROUND_PART_GET_AGGREGATE_GEOMETRIES_FOR_LOD1(DatabaseType type) {
+		switch (type) {
+		case ORACLE:
+			return "SELECT sdo_aggr_union(mdsys.sdoaggrtype(aggr_geom, <TOLERANCE>)) aggr_geom " +
+			"FROM (SELECT sdo_aggr_union(mdsys.sdoaggrtype(aggr_geom, <TOLERANCE>)) aggr_geom " +
+			"FROM (SELECT sdo_aggr_union(mdsys.sdoaggrtype(aggr_geom, <TOLERANCE>)) aggr_geom " +
+			"FROM (SELECT sdo_aggr_union(mdsys.sdoaggrtype(simple_geom, <TOLERANCE>)) aggr_geom " +
+			"FROM (" +
+						"SELECT * FROM (" +
+						"SELECT * FROM (" +
+				    	"SELECT citydb_util.to_2d(sg.geometry, <2D_SRID>) AS simple_geom " +
+				    	"FROM SURFACE_GEOMETRY sg " +
+				    	"WHERE " +
+				    	"sg.root_id IN( " +				    	
+				    	"SELECT geom.gid FROM (SELECT b.lod<LoD>_multi_surface_id as gid " +
+				    	"FROM UNDERGROUND b " +
+				    	"WHERE "+
+				    	"b.id = ? " +
+				    	"AND b.lod<LoD>_multi_surface_id IS NOT NULL " +
+				    	"UNION " +
+				    	"SELECT b.lod<LoD>_solid_id as gid " +
+				    	"FROM UNDERGROUND b " +
+				    	"WHERE "+
+				    	"b.id = ? " +
+				    	"AND b.lod<LoD>_solid_id IS NOT NULL) geom "+
+				    	") " +
+				    	"AND sg.geometry IS NOT NULL" +
+						") WHERE sdo_geom.validate_geometry(simple_geom, <TOLERANCE>) = 'TRUE'" +
+						") WHERE sdo_geom.sdo_area(simple_geom, <TOLERANCE>) > <TOLERANCE>" +
+						") " +
+						"GROUP BY mod(rownum, <GROUP_BY_1>) " +
+						") " +
+						"GROUP BY mod (rownum, <GROUP_BY_2>) " +
+						") " +
+						"GROUP BY mod (rownum, <GROUP_BY_3>) " +
+						")";
+		case POSTGIS:
+			return "SELECT ST_Union(get_valid_area.simple_geom) " +
+			"FROM (" +
+			"SELECT * FROM (" +
+			"SELECT * FROM (" +
+				        "SELECT ST_Force2D(sg.geometry) AS simple_geom " +
+				        "FROM SURFACE_GEOMETRY sg " +
+				        "WHERE " +
+				        "sg.root_id IN( " +
+				        "SELECT b.lod<LoD>_multi_surface_id " +
+				        "FROM UNDERGROUND b " +
+				        "WHERE b.id = ? " +
+				        "AND b.lod<LoD>_multi_surface_id IS NOT NULL " +
+				        "UNION " +				        
+				        "SELECT b.lod<LoD>_solid_id " +
+				        "FROM UNDERGROUND b " +
+				        "WHERE b.id = ? " +
+				        "AND b.lod<LoD>_solid_id IS NOT NULL " +				        
+				        ") " +
+				        "AND sg.geometry IS NOT NULL) AS get_geoms " +
+				    	"WHERE ST_IsValid(get_geoms.simple_geom) = 'TRUE') AS get_valid_geoms " +
+				    	// ST_Area for WGS84 only works correctly if the geometry is a geography data type
+				    	"WHERE ST_Area(ST_Transform(get_valid_geoms.simple_geom,4326)::geography, true) > <TOLERANCE>) AS get_valid_area";
+		default:
+			return null;
+		}
+	}
+	
+	private static final String UNDERGROUND_PART_GET_AGGREGATE_GEOMETRIES_FOR_LOD0(DatabaseType type) {
+		switch (type) {
+		case ORACLE:
+			return "SELECT sdo_aggr_union(mdsys.sdoaggrtype(aggr_geom, <TOLERANCE>)) aggr_geom " +
+			"FROM (SELECT sdo_aggr_union(mdsys.sdoaggrtype(aggr_geom, <TOLERANCE>)) aggr_geom " +
+			"FROM (SELECT sdo_aggr_union(mdsys.sdoaggrtype(aggr_geom, <TOLERANCE>)) aggr_geom " +
+			"FROM (SELECT sdo_aggr_union(mdsys.sdoaggrtype(simple_geom, <TOLERANCE>)) aggr_geom " +
+			"FROM (" +
+						"SELECT * FROM (" +
+						"SELECT * FROM (" +
+				    	"SELECT sg.geometry AS simple_geom " +
+				    	"FROM SURFACE_GEOMETRY sg " +
+				    	"WHERE " +
+				    	"sg.root_id IN( " +
+				    	"SELECT geom.gid FROM (SELECT b.lod0_footprint_id as gid " +
+				    	"FROM UNDERGROUND b " +
+				    	"WHERE "+
+				    	"b.id = ? " +
+				    	"AND b.lod0_footprint_id IS NOT NULL " +
+				    	"UNION " +
+				    	"SELECT b.lod0_roofprint_id as gid " +
+				    	"FROM UNDERGROUND b " +
+				    	"WHERE "+
+				    	"b.id = ? " +
+				    	"AND b.lod0_roofprint_id IS NOT NULL) geom "+
+				    	") " +
+				    	"AND sg.geometry IS NOT NULL" +
+						") WHERE sdo_geom.validate_geometry(simple_geom, <TOLERANCE>) = 'TRUE'" +
+						") WHERE sdo_geom.sdo_area(simple_geom, <TOLERANCE>) > <TOLERANCE>" +
+						") " +
+						"GROUP BY mod(rownum, <GROUP_BY_1>) " +
+						") " +
+						"GROUP BY mod (rownum, <GROUP_BY_2>) " +
+						") " +
+						"GROUP BY mod (rownum, <GROUP_BY_3>) " +
+						")";
+		case POSTGIS:
+			return "SELECT ST_Union(get_valid_area.simple_geom) " +
+			"FROM (" +
+			"SELECT * FROM (" +
+			"SELECT * FROM (" +
+				        "SELECT sg.geometry AS simple_geom " +
+				        "FROM SURFACE_GEOMETRY sg " +
+				        "WHERE " +
+				        "sg.root_id IN( " +
+				        "SELECT b.lod0_footprint_id " +
+				        "FROM UNDERGROUND b " +
+				        "WHERE b.id = ? " +
+				        "AND b.lod0_footprint_id IS NOT NULL " +
+				        "UNION " +				        
+				        "SELECT b.lod0_roofprint_id " +
+				        "FROM UNDERGROUND b " +
+				        "WHERE b.id = ? " +
+				        "AND b.lod0_roofprint_id IS NOT NULL " +				        
+				        ") " +
+				        "AND sg.geometry IS NOT NULL) AS get_geoms " +
+				    	"WHERE ST_IsValid(get_geoms.simple_geom) = 'TRUE') AS get_valid_geoms " +
+				    	// ST_Area for WGS84 only works correctly if the geometry is a geography data type
+				    	"WHERE ST_Area(ST_Transform(get_valid_geoms.simple_geom,4326)::geography, true) > <TOLERANCE>) AS get_valid_area";
+		default:
+			return null;
+		}
+	}
+	public static String getUndergroundPartAggregateGeometries (double tolerance,
+			int srid2D,
+			int lodToExportFrom,
+			double groupBy1,
+			double groupBy2,
+			double groupBy3,
+			DatabaseType type) {
+		if (lodToExportFrom > 1) {
+			return UNDERGROUND_PART_GET_AGGREGATE_GEOMETRIES_FOR_LOD2_OR_HIGHER(type).replace("<TOLERANCE>", String.valueOf(tolerance))
+					.replace("<2D_SRID>", String.valueOf(srid2D))
+					.replace("<LoD>", String.valueOf(lodToExportFrom))
+					.replace("<GROUP_BY_1>", String.valueOf(groupBy1))
+					.replace("<GROUP_BY_2>", String.valueOf(groupBy2))
+					.replace("<GROUP_BY_3>", String.valueOf(groupBy3));
+		}
+		else if (lodToExportFrom == 1){
+			return UNDERGROUND_PART_GET_AGGREGATE_GEOMETRIES_FOR_LOD1(type).replace("<TOLERANCE>", String.valueOf(tolerance))
+					.replace("<2D_SRID>", String.valueOf(srid2D))
+					.replace("<LoD>", String.valueOf(lodToExportFrom))
+					.replace("<GROUP_BY_1>", String.valueOf(groupBy1))
+					.replace("<GROUP_BY_2>", String.valueOf(groupBy2))
+					.replace("<GROUP_BY_3>", String.valueOf(groupBy3));			
+		}
+		else {
+			return UNDERGROUND_PART_GET_AGGREGATE_GEOMETRIES_FOR_LOD0(type).replace("<TOLERANCE>", String.valueOf(tolerance))
+					.replace("<GROUP_BY_1>", String.valueOf(groupBy1))
+					.replace("<GROUP_BY_2>", String.valueOf(groupBy2))
+					.replace("<GROUP_BY_3>", String.valueOf(groupBy3));					
+		}
+	}
+
+
+
+	private static final HashMap<Integer, String> undergroundPartQueriesLod4 = new HashMap<Integer, String>();
+	static {
+		undergroundPartQueriesLod4.put(DisplayForm.FOOTPRINT, UNDERGROUND_PART_FOOTPRINT_LOD4);
+		undergroundPartQueriesLod4.put(DisplayForm.EXTRUDED, UNDERGROUND_PART_FOOTPRINT_LOD4);
+		undergroundPartQueriesLod4.put(DisplayForm.GEOMETRY, UNDERGROUND_PART_GEOMETRY_LOD4);
+		undergroundPartQueriesLod4.put(DisplayForm.COLLADA, UNDERGROUND_PART_COLLADA_LOD4_ROOT_IDS);
+	}
+
+	private static final HashMap<Integer, String> undergroundPartQueriesLod3 = new HashMap<Integer, String>();
+	static {
+		undergroundPartQueriesLod3.put(DisplayForm.FOOTPRINT, UNDERGROUND_PART_FOOTPRINT_LOD3);
+		undergroundPartQueriesLod3.put(DisplayForm.EXTRUDED, UNDERGROUND_PART_FOOTPRINT_LOD3);
+		undergroundPartQueriesLod3.put(DisplayForm.GEOMETRY, UNDERGROUND_PART_GEOMETRY_LOD3);
+		undergroundPartQueriesLod3.put(DisplayForm.COLLADA, UNDERGROUND_PART_COLLADA_LOD3_ROOT_IDS);
+	}
+
+	private static final HashMap<Integer, String> undergroundPartQueriesLod2 = new HashMap<Integer, String>();
+	static {
+		undergroundPartQueriesLod2.put(DisplayForm.FOOTPRINT, UNDERGROUND_PART_FOOTPRINT_LOD2);
+		undergroundPartQueriesLod2.put(DisplayForm.EXTRUDED, UNDERGROUND_PART_FOOTPRINT_LOD2);
+		undergroundPartQueriesLod2.put(DisplayForm.GEOMETRY, UNDERGROUND_PART_GEOMETRY_LOD2);
+		undergroundPartQueriesLod2.put(DisplayForm.COLLADA, UNDERGROUND_PART_COLLADA_LOD2_ROOT_IDS);
+	}
+
+	private static final HashMap<Integer, String> undergroundPartQueriesLod1 = new HashMap<Integer, String>();
+	static {
+		undergroundPartQueriesLod1.put(DisplayForm.GEOMETRY, UNDERGROUND_PART_GEOMETRY_LOD1);
+		undergroundPartQueriesLod1.put(DisplayForm.COLLADA, UNDERGROUND_PART_COLLADA_LOD1_ROOT_IDS);
+	}
+	
+	private static final String UNDERGROUND_PART_FOOTPRINT_LOD0 = 
+			"SELECT sg.geometry " +
+					"FROM SURFACE_GEOMETRY sg, UNDERGROUND b " +
+					"WHERE " +
+					"b.id = ? " +
+					"AND sg.root_id = b.lod0_footprint_id " +
+					"AND sg.geometry IS NOT NULL ";
+	
+	private static final String UNDERGROUND_PART_ROOFPRINT_LOD0 = 
+			"SELECT sg.geometry " +
+					"FROM SURFACE_GEOMETRY sg, UNDERGROUND b " +
+					"WHERE " +
+					"b.id = ? " +
+					"AND sg.root_id = b.lod0_roofprint_id " +
+					"AND sg.geometry IS NOT NULL ";
+
+	public static String getUndergroundPartQuery (int lodToExportFrom, DisplayForm displayForm, Lod0FootprintMode lod0FootprintMode, DatabaseType type) {
+		String query = null;
+		switch (lodToExportFrom) {
+		case 0: 
+			if (lod0FootprintMode == Lod0FootprintMode.FOOTPRINT) {
+				query = UNDERGROUND_PART_FOOTPRINT_LOD0;
+			}
+			else if (lod0FootprintMode == Lod0FootprintMode.ROOFPRINT || lod0FootprintMode == Lod0FootprintMode.ROOFPRINT_PRIOR_FOOTPRINT) {
+				query = UNDERGROUND_PART_ROOFPRINT_LOD0;
+			}			
+			break;
+		case 1:
+			if (displayForm.getForm() == DisplayForm.FOOTPRINT || displayForm.getForm() == DisplayForm.EXTRUDED){
+				query = UNDERGROUND_PART_FOOTPRINT_LOD1(type);	
+			}
+			else 
+				query = undergroundPartQueriesLod1.get(displayForm.getForm());
+			break;
+		case 2:
+			query = undergroundPartQueriesLod2.get(displayForm.getForm());
+			break;
+		case 3:
+			query = undergroundPartQueriesLod3.get(displayForm.getForm());
+			break;
+		case 4:
+			query = undergroundPartQueriesLod4.get(displayForm.getForm());
+			break;
+		default:
+			Logger.getInstance().log(LogLevel.INFO, "No UndergroundPart query found for LoD" + lodToExportFrom);
+		}
+		return query;
+	}
+
+	public static String getUndergroundPartHighlightingQuery (int lodToExportFrom) {
+		String query = null;
+		switch (lodToExportFrom) {
+		case 1:
+			query = UNDERGROUND_PART_GEOMETRY_HIGHLIGHTING_LOD1;
+			break;
+		case 2:
+			query = UNDERGROUND_PART_GEOMETRY_HIGHLIGHTING_LOD2;
+			break;
+		case 3:
+			query = UNDERGROUND_PART_GEOMETRY_HIGHLIGHTING_LOD3;
+			break;
+		case 4:
+			query = UNDERGROUND_PART_GEOMETRY_HIGHLIGHTING_LOD4;
+			break;
+		default:
+			Logger.getInstance().log(LogLevel.INFO, "No UndergrounPart highlighting query found for LoD" + lodToExportFrom);
+		}
+
+		//	    	Logger.getInstance().log(LogLevelType.DEBUG, query);
+		return query;
+	}
 }

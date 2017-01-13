@@ -253,6 +253,9 @@ public abstract class AbstractUtilAdapter implements DatabaseUtil {
 		case WATERBODY:
 			classIds.add(Util.cityObject2classId(CityGMLClass.WATER_BODY));
 			break;
+		case UNDERGROUND:
+			classIds.add(Util.cityObject2classId(CityGMLClass.UNDERGROUND));
+			break;
 		default:
 			classIds.add(Util.cityObject2classId(CityGMLClass.BUILDING));
 			classIds.add(Util.cityObject2classId(CityGMLClass.BRIDGE));
@@ -270,6 +273,7 @@ public abstract class AbstractUtilAdapter implements DatabaseUtil {
 			classIds.add(Util.cityObject2classId(CityGMLClass.PLANT_COVER));
 			classIds.add(Util.cityObject2classId(CityGMLClass.SOLITARY_VEGETATION_OBJECT));
 			classIds.add(Util.cityObject2classId(CityGMLClass.WATER_BODY));
+			classIds.add(Util.cityObject2classId(CityGMLClass.UNDERGROUND));
 		}
 		
 		return classIds;

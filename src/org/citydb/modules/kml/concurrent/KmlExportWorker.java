@@ -68,6 +68,7 @@ import org.citydb.modules.kml.database.SolitaryVegetationObject;
 import org.citydb.modules.kml.database.Transportation;
 import org.citydb.modules.kml.database.Tunnel;
 import org.citydb.modules.kml.database.WaterBody;
+import org.citydb.modules.kml.database.Underground;
 import org.citydb.modules.kml.util.ExportTracker;
 import org.citygml4j.model.citygml.CityGMLClass;
 import org.citygml4j.util.xml.SAXEventBuffer;
@@ -229,6 +230,15 @@ public class KmlExportWorker extends Worker<KmlSplittingResult> {
 			colladaOptions = config.getProject().getKmlExporter().getBridgeColladaOptions();
 			if (colladaOptions.isGroupObjects()) {
 				objectGroupSize.put(CityGMLClass.BRIDGE, colladaOptions.getGroupSize());
+			}
+		}
+		objectGroupCounter.put(CityGMLClass.UNDERGROUND, 0);
+		objectGroupSize.put(CityGMLClass.UNDERGROUND, 1);
+		objectGroup.put(CityGMLClass.UNDERGROUND, null);
+		if (filterConfig.getComplexFilter().getFeatureClass().isSetUnderground()) {
+			colladaOptions = config.getProject().getKmlExporter().getBuildingColladaOptions();	// TODO: TEMP USE BUILDING OPTIONS, ADD UNDERGROUND
+			if (colladaOptions.isGroupObjects()) {
+				objectGroupSize.put(CityGMLClass.UNDERGROUND, colladaOptions.getGroupSize());
 			}
 		}
 		// CityGMLClass.CITY_OBJECT_GROUP is left out, it does not make sense to group it without COLLADA DisplayForm 
@@ -461,6 +471,17 @@ public class KmlExportWorker extends Worker<KmlSplittingResult> {
 				break;
 			case TUNNEL:
 				singleObject = new Tunnel(connection,
+						kmlExporterManager,
+						kmlFactory,
+						databaseAdapter,
+						textureExportAdapter,
+						elevationServiceHandler,
+						getBalloonTemplateHandler(featureClass),
+						eventDispatcher,
+						config);
+				break;
+			case UNDERGROUND:
+				singleObject = new Underground(connection,
 						kmlExporterManager,
 						kmlFactory,
 						databaseAdapter,
